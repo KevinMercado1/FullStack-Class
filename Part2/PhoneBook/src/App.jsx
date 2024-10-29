@@ -16,7 +16,7 @@ const App = () => {
     personService
       .getAll()
       .then((initialPersons) => setPersons(initialPersons))
-      .catch((error) => {
+      .catch(() => {
         showNotification('Failed to retrieve data from the server', 'error');
       });
   }, []);
@@ -32,6 +32,12 @@ const App = () => {
     event.preventDefault();
     const existingPerson = persons.find((person) => person.name === newName);
     const newPerson = { name: newName, number: newNumber };
+
+    // Verifica si los campos están vacíos
+    if (!newName || !newNumber) {
+      showNotification('Name and number cannot be empty', 'error');
+      return;
+    }
 
     if (existingPerson) {
       if (
@@ -84,7 +90,7 @@ const App = () => {
           setPersons(persons.filter((person) => person.id !== id));
           showNotification(`Deleted ${name}`, 'error');
         })
-        .catch((error) => {
+        .catch(() => {
           showNotification(
             `Failed to delete ${name}. The entry might have been removed already.`,
             'error'
@@ -97,6 +103,7 @@ const App = () => {
   const handleNumberChange = (event) => setNewNumber(event.target.value);
   const handleFilterChange = (event) => setFilter(event.target.value);
 
+  // Filtra los nombres que contienen el texto del filtro
   const personsToShow = persons.filter((person) =>
     person.name.toLowerCase().includes(filter.toLowerCase())
   );
