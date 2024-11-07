@@ -1,8 +1,12 @@
-const Filter = ({ filter, handleFilterChange }) => {
+const Filter = ({ filter, setFilter }) => {
   return (
-    <>
-      filter show with: <input value={filter} onChange={handleFilterChange} />
-    </>
+    <div>
+      filter shown with:
+      <input
+        value={filter}
+        onChange={({ target }) => setFilter(target.value)}
+      />
+    </div>
   );
 };
 

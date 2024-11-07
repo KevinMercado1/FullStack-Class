@@ -1,10 +1,18 @@
 h1 {
   color: green;
-  font-style: italic;
+}
+
+h2 {
+  color: green;
 }
 
 li {
   color: grey;
   padding-top: 3px;
   font-size: 15px;
+}
+
+.phonebook-title {
+  color: green; /* Cambia a verde */
+  font-style: italic; /* En cursiva */
 }

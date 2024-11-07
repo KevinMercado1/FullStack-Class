@@ -1,12 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const cors = require('cors');
 const mongoose = require('mongoose');
-const Person = require('./models/persons');
-
-require('dotenv').config();
-
 const morgan = require('morgan');
+
 morgan.token('body', (req) => JSON.stringify(req.body));
 
 const mongoUrl = process.env.MONGODB_URI;
@@ -19,19 +17,22 @@ mongoose
     console.error('Error connecting to MongoDB:', error.message);
   });
 
+const Person = require('./models/person');
+
+// Manejo de errores
 const errorHandler = (error, req, res, next) => {
-  console.log(error.name, error.name === 'ValidationError');
+  console.log(error.name);
 
   if (error.name === 'CastError') {
     return res.status(400).send({ error: 'malformatted id' });
   } else if (error.name === 'ValidationError') {
-    console.log('====');
     return res.status(400).json({ error: error.message });
   }
 
   next(error);
 };
 
+// Middlewares
 app.use(
   morgan(':method :url :status :res[content-length] - :response-time ms :body')
 );
@@ -39,6 +40,7 @@ app.use(express.static('dist'));
 app.use(express.json());
 app.use(cors());
 
+// Rutas
 app.get('/api/persons', (req, res) => {
   Person.find({}).then((persons) => {
     res.json(persons);
@@ -66,7 +68,7 @@ app.post('/api/persons', (req, res, next) => {
 });
 
 app.get('/info', (req, res) => {
-  const date = new Date();
+  const date = new Date().toLocaleString();
   Person.countDocuments().then((count) => {
     res.send(`<p>Phonebook has info for ${count} people</p><p>${date}</p>`);
   });
@@ -100,16 +102,20 @@ app.put('/api/persons/:id', (req, res, next) => {
     number: body.number,
   };
 
-  Person.findByIdAndUpdate(req.params.id, person, { new: true })
+  Person.findByIdAndUpdate(req.params.id, person, {
+    new: true,
+    runValidators: true,
+  })
     .then((updatedPerson) => {
       res.json(updatedPerson);
     })
     .catch((error) => next(error));
 });
 
+// Middleware para manejo de errores
 app.use(errorHandler);
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
